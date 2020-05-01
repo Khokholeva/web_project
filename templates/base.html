@@ -10,14 +10,14 @@
     <title>{{title}}</title>
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="#">Наше приложение</a>
-    </nav>
-</header>
-
-<main role="main" class="container">
-    {% block content %}{% endblock %}
-</main>
+{% if current_user.is_authenticated %}
+    <a class="navbar-brand" href="/logout">{{ current_user.name }} (logout)</a>
+{% else %}
+    <p>
+        <a class="btn btn-primary " href="/register">Register</a>
+        <a class="btn btn-success" href="/login">Login</a>
+    </p>
+{% endif %}
+            {% block content %}{% endblock %}
 </body>
 </html>
