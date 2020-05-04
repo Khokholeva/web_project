@@ -10,6 +10,6 @@ class Question(SqlAlchemyBase):
                            primary_key=True, autoincrement=True)
     text = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     attachment = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    answers = sqlalchemy.Column(sqlalchemy.Enum, nullable=True)
+    answers = sqlalchemy.Column(sqlalchemy.ARRAY(sqlalchemy.String), nullable=True)
     correct = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)

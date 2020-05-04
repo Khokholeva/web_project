@@ -7,6 +7,8 @@ from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 
 User = __all_models.user.User
+Question = __all_models.question.Question
+Test = __all_models.test.Test
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'our_project_key'
@@ -33,6 +35,13 @@ class RegisterForm(FlaskForm):
 
 def main():
     db_session.global_init("db/tests.sqlite")
+    q = Question()
+    q.text = 'ок'
+    q.answers = ['a', 'b', 'c', 'd']
+    q.correct = 2
+    session = db_session.create_session()
+    session.add(q)
+    session.commit()
     app.run(port=8080, host='127.0.0.1')
 
 

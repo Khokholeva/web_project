@@ -20,6 +20,9 @@ class User(SqlAlchemyBase, UserMixin):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     news = orm.relation("Test", back_populates='user')
+    completed_tests = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    users_tests = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    moderator = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

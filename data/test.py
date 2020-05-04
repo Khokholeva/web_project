@@ -15,8 +15,9 @@ class Test(SqlAlchemyBase):
     attachment = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
-    questions = sqlalchemy.Column(sqlalchemy.Enum, nullable=True)
+    questions = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     difficulty = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     user = orm.relation('User')
+    official = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
