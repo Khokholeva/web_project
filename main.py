@@ -37,7 +37,7 @@ def main():
     db_session.global_init("db/tests.sqlite")
     q = Question()
     q.text = 'ок'
-    q.answers = ['a', 'b', 'c', 'd']
+    q.answers = ' '.join(['a', 'b', 'c', 'd'])
     q.correct = 2
     session = db_session.create_session()
     session.add(q)
@@ -54,7 +54,7 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('main.html', title='Just Tests')
+    return render_template('base.html', title='Just Tests')
 
 
 @app.route('/login', methods=['GET', 'POST'])
