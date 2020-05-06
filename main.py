@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, redirect
 from flask_login import LoginManager, login_user, logout_user, login_required
 from data import db_session, __all_models
@@ -34,6 +35,9 @@ class RegisterForm(FlaskForm):
 
 
 def main():
+    path = os.getcwd().replace('\\', '/') + '/db'
+    if not os.path.exists(path):
+        os.mkdir(path)
     db_session.global_init("db/tests.sqlite")
     q = Question()
     q.text = 'ок'
@@ -54,7 +58,7 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('base.html', title='Just Tests')
+    return render_template('main.html', title='Just Tests')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -86,14 +90,20 @@ def reqister():
                                    form=form,
                                    message="Такой пользователь уже есть")
         if form.profile_pic.data:
-            profile_pic = form.profile_pic.data
+            profile_pic_name = form.profile_pic.data.filename
+            path = os.getcwd().replace('\\', '/') + '/db/upload'
+            if not os.path.exists(path):
+                os.mkdir(path)
+            save_name = form.name.data + '_' + profile_pic_name
+            form.profile_pic.data.save('db/upload/' + save_name)
+            profile_pic_name = path + save_name
         else:
-            profile_pic = 'a'
+            profile_pic_name = ''
         user = User(
             name=form.name.data,
             email=form.email.data,
             about=form.about.data,
-            profile_pic=profile_pic
+            profile_pic=profile_pic_name
         )
         user.set_password(form.password.data)
         session.add(user)

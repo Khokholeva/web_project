@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Регистрация</h1>
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
     <p>
@@ -52,7 +52,7 @@
     </p>
     <p>
         {{ form.profile_pic.label }}<br>
-        {{ form.about(class="form-control") }}<br>
+        {{ form.profile_pic }}
         {% for error in form.about.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
