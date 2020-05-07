@@ -47,13 +47,6 @@ def main():
     if not os.path.exists(path):
         os.mkdir(path)
     db_session.global_init("db/tests.sqlite")
-    q = Question()
-    q.text = 'ок'
-    q.answers = ' '.join(['a', 'b', 'c', 'd'])
-    q.correct = 2
-    session = db_session.create_session()
-    session.add(q)
-    session.commit()
     app.run(port=8080, host='127.0.0.1')
 
 
@@ -66,7 +59,18 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('main.html', title='Just Tests')
+    session = db_session.create_session()
+
+    if current_user.is_authenticated:
+        if current_user.completed_tests:
+            completed = list(map(int, current_user.completed_tests.split('')))
+        else:
+            completed = []
+        tests = session.query(Test).filter(not Test.user == current_user, Test.id not in completed).all()
+    else:
+        tests = session.query(Test).filter().all()
+
+    return render_template('main.html', title='Just Tests', data=tests)
 
 
 @app.route('/login', methods=['GET', 'POST'])
