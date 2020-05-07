@@ -15,7 +15,11 @@
       {%endif%}
   </tr>
   {% for test in data %}
+    {%if test.official%}
+  <tr bgcolor="#e0ffe0">
+      {%else%}
   <tr>
+    {%endif%}
       <th  align="center">{{test.name}}</th>
       <th  align="center">{{test.category}}</th>
       <th align="center">{{test.difficulty}}</th>

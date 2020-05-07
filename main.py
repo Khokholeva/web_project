@@ -66,7 +66,7 @@ def index():
             completed = list(map(int, current_user.completed_tests.split('')))
         else:
             completed = []
-        tests = session.query(Test).filter(not Test.user == current_user, Test.id not in completed).all()
+        tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed).all()
     else:
         tests = session.query(Test).filter().all()
 
@@ -169,6 +169,14 @@ def user_delete():
     session.delete(user)
     session.commit()
     return redirect("/")
+
+
+@app.route('/test_info/<id>')
+@login_required
+def test_page(id):
+    session = db_session.create_session()
+    test = session.query(Test).filter(Test.id == id).first()
+    return render_template('test_page.html', test=test, title='О тесте')
 
 
 if __name__ == '__main__':

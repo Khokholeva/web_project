@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{test.name}}</h2>
+{% if test.attachment %}
+<img src="{{test.attachment}}">
+{%endif%}
+<h5>Категория: {{test.category}}</h5>
+<h5>Сложность: {{test.difficulty}}</h5>
+<p>{{test.about}}</p>
+<h6>Автор: {{test.user.name}}</h6>
+{%if test.official%}
+<h6>Официальный тест</h6>
+{%endif%}
+{% endblock %}
