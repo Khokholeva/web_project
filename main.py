@@ -42,6 +42,13 @@ class AccountForm(FlaskForm):
     submit = SubmitField('Изменить аккаунт')
 
 
+class PasswordForm(FlaskForm):
+    password_old = PasswordField('Введите старый пароль', validators=[DataRequired()])
+    password = PasswordField('Введите новый пароль', validators=[DataRequired()])
+    password_again = PasswordField('Повторите новый пароль', validators=[DataRequired()])
+    submit = SubmitField('Изменить пароль')
+
+
 def main():
     path = os.getcwd().replace('\\', '/') + '/db'
     if not os.path.exists(path):
@@ -82,9 +89,8 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template('login.html',
-                               message="Неправильный логин или пароль",
-                               form=form)
+        return render_template('login.html', title='Авторизация',
+                               message="Неправильный логин или пароль", form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -152,6 +158,26 @@ def my_account():
     return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
                            path=profile_pic_name)
 
+
+@app.route('/pass_change', methods=['GET', 'POST'])
+@login_required
+def pass_change():
+    form = PasswordForm()
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        user = current_user
+        user = session.query(User).filter(User.email == user.email).first()
+        if not user.check_password(form.password_old.data):
+            return render_template('pass.html', title='Изменение пароля',
+                               message="Введён неправильный пароль", form=form)
+        if form.password.data != form.password_again.data:
+            return render_template('pass.html', title='Изменение пароля',
+                                   message="Пароли не совпадают", form=form)
+        user.set_password(form.password.data)
+        session.commit()
+        return render_template('pass.html', title='Изменение пароля',
+                               message="Пароль изменён", form=form)
+    return render_template('pass.html', title='Изменение пароля', form=form)
 
 @app.route('/logout')
 @login_required
