@@ -30,22 +30,12 @@ class RegisterForm(FlaskForm):
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
     name = StringField('Имя пользователя', validators=[DataRequired()])
     about = TextAreaField("Немного о себе")
-    submit = SubmitField('Войти')
+    submit = SubmitField('Сохранить')
     profile_pic = FileField('Аватарка')
 
 
 def main():
-    path = os.getcwd().replace('\\', '/') + '/db'
-    if not os.path.exists(path):
-        os.mkdir(path)
     db_session.global_init("db/tests.sqlite")
-    q = Question()
-    q.text = 'ок'
-    q.answers = ' '.join(['a', 'b', 'c', 'd'])
-    q.correct = 2
-    session = db_session.create_session()
-    session.add(q)
-    session.commit()
     app.run(port=8080, host='127.0.0.1')
 
 
@@ -59,6 +49,12 @@ def load_user(user_id):
 @app.route('/index')
 def index():
     return render_template('main.html', title='Just Tests')
+
+
+@app.route('/my_account')
+@login_required
+def my_account():
+    return render_template('my_account.html', title='My account')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -96,9 +92,9 @@ def reqister():
                 os.mkdir(path)
             save_name = form.name.data + '_' + profile_pic_name
             form.profile_pic.data.save('db/upload/' + save_name)
-            profile_pic_name = path + save_name
+            profile_pic_name = '../../db/upload/' + save_name
         else:
-            profile_pic_name = ''
+            profile_pic_name = './static/default.jpg'
         user = User(
             name=form.name.data,
             email=form.email.data,

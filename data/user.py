@@ -11,7 +11,7 @@ class User(SqlAlchemyBase, UserMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
-    profile_pic = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    profile_pic = sqlalchemy.Column(sqlalchemy.String, default="./static/default.jpg")
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     email = sqlalchemy.Column(sqlalchemy.String,
@@ -20,8 +20,8 @@ class User(SqlAlchemyBase, UserMixin):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     news = orm.relation("Test", back_populates='user')
-    completed_tests = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    users_tests = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    completed_tests = sqlalchemy.Column(sqlalchemy.String, default='')
+    users_tests = sqlalchemy.Column(sqlalchemy.String, default='')
     moderator = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
 
     def set_password(self, password):
