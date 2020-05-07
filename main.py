@@ -1,6 +1,7 @@
 import os
-from flask import Flask, render_template, redirect
-from flask_login import LoginManager, login_user, logout_user, login_required
+import datetime
+from flask import Flask, render_template, redirect, request, url_for
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from data import db_session, __all_models
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FileField
@@ -30,8 +31,15 @@ class RegisterForm(FlaskForm):
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
     name = StringField('Имя пользователя', validators=[DataRequired()])
     about = TextAreaField("Немного о себе")
-    submit = SubmitField('Войти')
     profile_pic = FileField('Аватарка')
+    submit = SubmitField('Войти')
+
+
+class AccountForm(FlaskForm):
+    name = StringField('Имя пользователя', validators=[DataRequired()])
+    about = TextAreaField("Немного о себе")
+    profile_pic = FileField('Аватарка')
+    submit = SubmitField('Изменить аккаунт')
 
 
 def main():
@@ -91,12 +99,12 @@ def reqister():
                                    message="Такой пользователь уже есть")
         if form.profile_pic.data:
             profile_pic_name = form.profile_pic.data.filename
-            path = os.getcwd().replace('\\', '/') + '/db/upload'
+            path = os.getcwd().replace('\\', '/') + '/static/img'
             if not os.path.exists(path):
                 os.mkdir(path)
             save_name = form.name.data + '_' + profile_pic_name
-            form.profile_pic.data.save('db/upload/' + save_name)
-            profile_pic_name = path + save_name
+            profile_pic_name = 'static/img/' + save_name
+            form.profile_pic.data.save(profile_pic_name)
         else:
             profile_pic_name = ''
         user = User(
@@ -108,14 +116,54 @@ def reqister():
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
+        logout_user()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/my_account', methods=['GET', 'POST'])
+@login_required
+def my_account():
+    form = AccountForm()
+    session = db_session.create_session()
+    user = current_user
+    user = session.query(User).filter(User.email == user.email).first()
+    profile_pic_name = user.profile_pic
+    if request.method == "GET":
+        form.name.data = user.name
+        form.about.data = user.about
+    if form.validate_on_submit():
+        if form.profile_pic.data:
+            profile_pic_name = form.profile_pic.data.filename
+            save_name = form.name.data + '_' + profile_pic_name
+            profile_pic_name = 'static/img/' + save_name
+            form.profile_pic.data.save(profile_pic_name)
+            user.profile_pic = profile_pic_name
+        user.name = form.name.data
+        user.about = form.about.data
+        user.created_date = datetime.datetime.now()
+        session.commit()
+        return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
+                               path=profile_pic_name, message='Аккаунт изменён')
+    return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
+                           path=profile_pic_name)
 
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    return redirect("/")
+
+
+@app.route('/user_delete')
+@login_required
+def user_delete():
+    session = db_session.create_session()
+    user = current_user
+    user = session.query(User).filter(User.email == user.email).first()
+    session.delete(user)
+    session.commit()
     return redirect("/")
 
 
