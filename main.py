@@ -11,6 +11,7 @@ from wtforms.validators import DataRequired
 User = __all_models.user.User
 Question = __all_models.question.Question
 Test = __all_models.test.Test
+Category = __all_models.category.Category
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'our_project_key'
@@ -64,10 +65,10 @@ class TestForm(FlaskForm):
 
 # Инициализация бд, запуск приложения
 def main():
+
     path = os.getcwd().replace('\\', '/') + '/db'
     if not os.path.exists(path):
         os.mkdir(path)
-
     db_session.global_init("db/tests.sqlite")
     app.run(port=8080, host='127.0.0.1')
 
@@ -79,21 +80,54 @@ def load_user(user_id):
 
 
 # Главная страница, содержит список тестов
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 def index():
     session = db_session.create_session()
     completed = []
-    if current_user.is_authenticated:
-        if current_user.completed_tests:
-            completed = list(map(int, current_user.completed_tests.split('')))
+    difficulies = ['any', 0, 1, 2, 3, 4, 5]
+    categories = ['any'] + [el.name for el in session.query(Category)]
+    authors = ['any'] + [el.name for el in session.query(User)]
+    official = ['any', "Только официальные", 'Только не официальные']
+    if request.method == 'POST':
+        print(request.form)
+        if current_user.is_authenticated:
+            if current_user.completed_tests:
+                completed = list(map(int, current_user.completed_tests.split('')))
 
-        tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed)
+            if request.form['difficulty'] == 'any':
+                tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed)
+            else:
+                tests = session.query(Test).filter(Test.user != current_user,
+                                                   Test.id not in completed,
+                                                   Test.difficulty == request.form['difficulty'])
+
+            if request.form['category'] != 'any':
+                tests = [test for test in tests if test.category == request.form['category']]
+
+            if request.form['author'] == 'Без автора':
+                tests = [test for test in tests if not test.user.name]
+            elif request.form['author'] != 'any':
+                tests = [test for test in tests if test.user.name == request.form['author']]
+
+            if request.form['official'] == 'Только официальные':
+                tests = [test for test in tests if test.official]
+            elif request.form['official'] == 'Только не официальные':
+                tests = [test for test in tests if not test.official]
+
+        else:
+            tests = session.query(Test).filter().all()
     else:
-        tests = session.query(Test).filter().all()
+        if current_user.is_authenticated:
+            if current_user.completed_tests:
+                completed = list(map(int, current_user.completed_tests.split('')))
 
-    return render_template('main.html', title='Just Tests', data=tests, completed=completed)
+            tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed)
+        else:
+            tests = session.query(Test).filter().all()
 
+    return render_template('main.html', title='Just Tests', data=tests, completed=completed,
+                           option=difficulies, option_2=categories, option_3=authors, option_4=official)
 
 # Вход в систему
 @app.route('/login', methods=['GET', 'POST'])
@@ -108,7 +142,6 @@ def login():
         return render_template('login.html', title='Авторизация',
                                message="Неправильный логин или пароль", form=form)
     return render_template('login.html', title='Авторизация', form=form)
-
 
 # Регистрация в системе
 @app.route('/register', methods=['GET', 'POST'])
@@ -147,7 +180,6 @@ def reqister():
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
-
 # Информация о своем аккаунте, возможность изменить данные, создать новый тест
 @app.route('/my_account', methods=['GET', 'POST'])
 @login_required
@@ -177,7 +209,6 @@ def my_account():
     return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
                            path=profile_pic_name, xp=user.xp, data=data)
 
-
 # Изменение пароля
 @app.route('/pass_change', methods=['GET', 'POST'])
 @login_required
@@ -199,14 +230,12 @@ def pass_change():
                                message="Пароль изменён", form=form)
     return render_template('pass.html', title='Изменение пароля', form=form)
 
-
 # Выход
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect("/")
-
 
 # Удаление аккаунта
 @app.route('/user_delete')
@@ -222,7 +251,6 @@ def user_delete():
     else:
         return "User not found"
 
-
 # Основная информация о тесте, ссылка для прохождения теста
 @app.route('/test_info/<id>')
 @login_required
@@ -231,7 +259,6 @@ def test_page(id):
     test = session.query(Test).filter(Test.id == int(id)).first()
     completed = list(map(int, current_user.completed_tests.split('')))
     return render_template('test_page.html', test=test, title='О тесте', completed=completed)
-
 
 # Прохождение теста / результат теста
 @app.route('/complete_test/<id>', methods=['POST', 'GET'])
@@ -258,8 +285,8 @@ def complete_test(id):
             experience *= 1.2
         user.xp += experience
         session.commit()
-        return render_template('result.html', result=result, max_res=max_res, experience=experience, title='Результат')
-
+        return render_template('result.html', result=result, max_res=max_res, experience=experience,
+                               title='Результат')
 
 # Просмотр информации о другом пользователе, доступ к его тестам
 @app.route('/other_account/<id>')
@@ -272,7 +299,6 @@ def other_account(id):
         return render_template('other_account', user=user, completed=dont_show, title='Аккаунт ' + user.name)
     else:
         return 'User not found'
-
 
 # Создание нового теста/редактирование старого
 @app.route('/edit_test/<id>', methods=['GET', 'POST'])
@@ -326,7 +352,6 @@ def edit_test(id):
         else:
             return "Test not found"
 
-
 # Удаление теста
 @app.route('/delete_test/<id>')
 @login_required
@@ -342,7 +367,6 @@ def delete_test(id):
             return 'AccessError'
     else:
         return "Test not found"
-
 
 if __name__ == '__main__':
     main()

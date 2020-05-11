@@ -1,1 +1,1 @@
-from . import user, test, question
+from . import user, test, question, category
