@@ -14,7 +14,7 @@
 
         {%for ans in ques.answers.split('')%}
             <div>
-                <input type="checkbox" class="form-check-input" id="choose_{{ques.id}}" name="choose_{{ques.id}}" value="{{ans}}">
+                <input type="radio" class="form-check-input" id="choose_{{ques.id}}" name="choose_{{ques.id}}" value="{{ans}}">
                 <label class="form-check-label" for="choose_{{ques.id}}">{{ans}}</label>
              </div>
         {%endfor%}
