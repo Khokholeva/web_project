@@ -1,16 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>{{test.name}}</h2>
-{% if test.attachment %}
-<img src="{{test.attachment}}">
-{%endif%}
-<h5>Категория: {{test.category}}</h5>
-<h5>Сложность: {{test.difficulty}}</h5>
-<p>{{test.about}}</p>
-<h6>Автор: {{test.user.name}}</h6>
-{%if test.official%}
-<h6>Официальный тест</h6>
-{%endif%}
-<h4><a href="/complete_test/{{test.id}}">Пройти тест</a></h4>
+    <h2>{{test.name}}</h2>
+    {% if test.attachment %}
+        <img src="{{test.attachment}}">
+    {%endif%}
+    <h5>Категория: {{test.category}}</h5>
+    <h5>Сложность: {{test.difficulty}}</h5>
+    <p>{{test.about}}</p>
+    <h6>Автор: <a href="/other_account/{{test.user.id}}">{{test.user.name}}</a></h6>
+    {%if test.official%}
+        <h6>Официальный тест</h6>
+    {%endif%}
+    {% if test.id not in completed %}
+        <h4><a href="/complete_test/{{test.id}}">Пройти тест</a></h4>
+    {%else%}
+          <th  align="center" >Уже пройден</th>
+    {%endif%}
 {% endblock %}

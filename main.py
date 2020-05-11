@@ -68,18 +68,16 @@ def load_user(user_id):
 @app.route('/index')
 def index():
     session = db_session.create_session()
-
+    completed = []
     if current_user.is_authenticated:
         if current_user.completed_tests:
             completed = list(map(int, current_user.completed_tests.split('')))
-        else:
-            completed = []
+
         tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed)
-        print(tests[0].id not in completed)
     else:
         tests = session.query(Test).filter().all()
 
-    return render_template('main.html', title='Just Tests', data=tests)
+    return render_template('main.html', title='Just Tests', data=tests, completed=completed)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -156,9 +154,9 @@ def my_account():
         user.created_date = datetime.datetime.now()
         session.commit()
         return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
-                               path=profile_pic_name, message='Аккаунт изменён')
+                               path=profile_pic_name, message='Аккаунт изменён', xp=user.xp)
     return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
-                           path=profile_pic_name)
+                           path=profile_pic_name, xp=user.xp)
 
 
 @app.route('/pass_change', methods=['GET', 'POST'])
@@ -205,7 +203,8 @@ def user_delete():
 def test_page(id):
     session = db_session.create_session()
     test = session.query(Test).filter(Test.id == id).first()
-    return render_template('test_page.html', test=test, title='О тесте')
+    completed = list(map(int, current_user.completed_tests.split('')))
+    return render_template('test_page.html', test=test, title='О тесте', completed=completed)
 
 
 @app.route('/complete_test/<id>', methods=['POST', 'GET'])
@@ -233,6 +232,15 @@ def complete_test(id):
         user.xp += experience
         session.commit()
         return render_template('result.html', result=result, max_res=max_res, experience=experience)
+
+
+@app.route('/other_account/<id>')
+@login_required
+def other_account(id):
+    session = db_session.create_session()
+    user = session.query(User).filter(User.id == id).first()
+    dont_show = list(map(int, current_user.completed_tests.split('')))
+    return render_template('other_account', user=user, completed=dont_show)
 
 
 if __name__ == '__main__':

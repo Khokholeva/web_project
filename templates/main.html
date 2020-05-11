@@ -24,7 +24,11 @@
       <th  align="center">{{test.category}}</th>
       <th align="center">{{test.difficulty}}</th>
       {% if current_user.is_authenticated %}
+      {% if test.id not in completed %}
       <th  align="center" ><a href="/test_info/{{test.id}}">Тык</a></th>
+      {%else%}
+      <th  align="center" >Уже пройден</th>
+      {%endif%}
       {%endif%}
   <tr>
   {% endfor %}
