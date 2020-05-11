@@ -53,6 +53,7 @@ def main():
     path = os.getcwd().replace('\\', '/') + '/db'
     if not os.path.exists(path):
         os.mkdir(path)
+
     db_session.global_init("db/tests.sqlite")
     app.run(port=8080, host='127.0.0.1')
 
@@ -73,7 +74,8 @@ def index():
             completed = list(map(int, current_user.completed_tests.split('')))
         else:
             completed = []
-        tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed).all()
+        tests = session.query(Test).filter(Test.user != current_user, Test.id not in completed)
+        print(tests[0].id not in completed)
     else:
         tests = session.query(Test).filter().all()
 
@@ -169,7 +171,7 @@ def pass_change():
         user = session.query(User).filter(User.email == user.email).first()
         if not user.check_password(form.password_old.data):
             return render_template('pass.html', title='Изменение пароля',
-                               message="Введён неправильный пароль", form=form)
+                                   message="Введён неправильный пароль", form=form)
         if form.password.data != form.password_again.data:
             return render_template('pass.html', title='Изменение пароля',
                                    message="Пароли не совпадают", form=form)
@@ -178,6 +180,7 @@ def pass_change():
         return render_template('pass.html', title='Изменение пароля',
                                message="Пароль изменён", form=form)
     return render_template('pass.html', title='Изменение пароля', form=form)
+
 
 @app.route('/logout')
 @login_required
@@ -203,6 +206,33 @@ def test_page(id):
     session = db_session.create_session()
     test = session.query(Test).filter(Test.id == id).first()
     return render_template('test_page.html', test=test, title='О тесте')
+
+
+@app.route('/complete_test/<id>', methods=['POST', 'GET'])
+@login_required
+def complete_test(id):
+    session = db_session.create_session()
+    test = session.query(Test).filter(Test.id == id).first()
+    ques_ids = list(map(int, test.questions.split('')))
+    all_questions = [session.query(Question).filter(Question.id == qu_id).first() for qu_id in ques_ids]
+    if request.method == 'GET':
+        return render_template('complete_test.html', questions=all_questions, title='Прохождение теста')
+    elif request.method == 'POST':
+        user = session.query(User).filter(User.email == current_user.email).first()
+        user.completed_tests = user.completed_tests + '' + str(id)
+        result = 0
+        for key in request.form.keys():
+            ind = key.split('_')[-1]
+            corr = session.query(Question).filter(Question.id == ind).first().correct
+            if request.form[key] == corr:
+                result += 1
+        max_res = len(ques_ids)
+        experience = test.difficulty * 10 * result
+        if result == max_res:
+            experience *= 1.2
+        user.xp += experience
+        session.commit()
+        return render_template('result.html', result=result, max_res=max_res, experience=experience)
 
 
 if __name__ == '__main__':

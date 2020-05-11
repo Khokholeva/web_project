@@ -12,16 +12,16 @@ class User(SqlAlchemyBase, UserMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     profile_pic = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    name = sqlalchemy.Column(sqlalchemy.String, default='')
+    about = sqlalchemy.Column(sqlalchemy.String, default='')
     email = sqlalchemy.Column(sqlalchemy.String,
                               index=True, unique=True, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     news = orm.relation("Test", back_populates='user')
-    completed_tests = sqlalchemy.Column(sqlalchemy.String, default='')
-    users_tests = sqlalchemy.Column(sqlalchemy.String, default='')
+    completed_tests = sqlalchemy.Column(sqlalchemy.String, default='0')
+    users_tests = sqlalchemy.Column(sqlalchemy.String, default='0')
     moderator = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     xp = sqlalchemy.Column(sqlalchemy.Integer, default=0)
 

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Вы ответили верно на {{result}} вопросов из {{max_res}}</h2>
+{%if result == max_res %}
+<h2>Идеальное прохождение!</h2>
+{%endif%}
+<h2>Заработанный опыт: {{experience}}</h2>
+<h4><a href="/">Вернуться</a></h4>
+{% endblock %}

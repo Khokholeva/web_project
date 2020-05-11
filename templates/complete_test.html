@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form class="login_form" action="" method="post" enctype="multipart/form-data">
+    {%for ques in questions%}
+        <p>
+        <p>
+            {{loop.index}}) {{ ques.text }}
+        </p>
+        {% if ques.attachment %}
+            <img src="{{ques.attachment}}">
+        {%endif%}
+
+        {%for ans in ques.answers.split('')%}
+            <div>
+                <input type="checkbox" class="form-check-input" id="choose_{{ques.id}}" name="choose_{{ques.id}}" value="{{ans}}">
+                <label class="form-check-label" for="choose_{{ques.id}}">{{ans}}</label>
+             </div>
+        {%endfor%}
+        </p>
+    {%endfor%}
+    <p>
+        <button type="submit" class="btn btn-primary">Закончить тест</button>
+    </p>
+</form>
+{% endblock %}
