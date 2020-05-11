@@ -7,21 +7,33 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}"/>
+    <style type="text/css">
+    #sidebar, #content { position: absolute; }
+   #sidebar, #content { overflow: auto; padding: 10px; }
+   sidebar {
+    top: 82px; /* Расстояние от верхнего края */
+   }
+   #content {
+    top: 82px; /* Расстояние от верхнего края */
+    left: 460px; /* Расстояние от левого края */
+   }
+
+    </style>
 
     <title>{{title}}</title>
 </head>
 <body>
-    <div class="container">
-        {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/logout">{{ current_user.name }} (logout)</a>
-        {% else %}
-        <p>
-            <a class="btn btn-primary " href="/register">Register</a>
-            <a class="btn btn-success" href="/login">Login</a>
-        </p>
-        {% endif %}
-        {% block content %}{% endblock %}
-    </div>
+<div class="container">
+    {% if current_user.is_authenticated %}
+    <a class="navbar-brand" href="/logout">{{ current_user.name }} (logout)</a>
+    {% else %}
+    <p>
+        <a class="btn btn-primary " href="/register">Register</a>
+        <a class="btn btn-success" href="/login">Login</a>
+    </p>
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
 </body>
 </html>

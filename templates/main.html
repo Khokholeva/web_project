@@ -1,77 +1,82 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1 align="center">Тесты</h1>
-{% if current_user.is_authenticated %}
-<a class="btn btn-secondary" href="/my_account">Мой аккаунт</a>
-<form method="post">
-    <p>
-        Сортировка по сложности
-        <br>
-        <select name="difficulty">
-            {% for opt in option %}
-            <option value="{{ opt }}">{{opt}}</option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>
-        Сортировка по категории
-        <br>
-        <select name="category">
-            {% for opt in option_2 %}
-            <option value="{{ opt }}">{{opt}}</option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>
-        Сортировка по автору
-        <br>
-        <select name="author">
-            {% for opt in option_3 %}
-            <option value="{{ opt }}">{{opt}}</option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>
-        Официальные/не официальные тесты
-        <br>
-        <select name="official">
-            {% for opt in option_4 %}
-            <option value="{{ opt }}">{{opt}}</option>
-            {% endfor %}
-        </select>
-    </p>
-    <button type="submit" class="btn btn-primary">Отсортировать</button>
-</form>
+<div id="sidebar">
+    {% if current_user.is_authenticated %}
+    <a class="btn btn-secondary" href="/my_account">Мой аккаунт</a>
+    <form method="post">
+        <p>
+            Сортировка по сложности
+            <br>
+            <select name="difficulty">
+                {% for opt in option %}
+                <option value="{{ opt }}">{{opt}}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            Сортировка по категории
+            <br>
+            <select name="category">
+                {% for opt in option_2 %}
+                <option value="{{ opt }}">{{opt}}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            Сортировка по автору
+            <br>
+            <select name="author">
+                {% for opt in option_3 %}
+                <option value="{{ opt }}">{{opt}}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            Официальные/не официальные тесты
+            <br>
+            <select name="official">
+                {% for opt in option_4 %}
+                <option value="{{ opt }}">{{opt}}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <button type="submit" class="btn btn-primary">Отсортировать</button>
+    </form>
+</div>
 {% endif %}
-<table align="center">
-    <tbody>
-    <tr>
-        <th bgcolor="#cccccc" align="center">Название</th>
-        <th bgcolor="#cccccc" align="center">Категория</th>
-        <th bgcolor="#cccccc" align="center">Сложность</th>
-        {% if current_user.is_authenticated %}
-        <th bgcolor="#cccccc" align="center">Перейти к тесту</th>
-        {%endif%}
-    </tr>
-    {% for test in data %}
-    {%if test.official%}
-    <tr bgcolor="#e0ffe0">
-        {%else%}
-    <tr>
-        {%endif%}
-        <th align="center">{{test.name}}</th>
-        <th align="center">{{test.category}}</th>
-        <th align="center">{{test.difficulty}}</th>
-        {% if current_user.is_authenticated %}
-        {% if test.id not in completed %}
-        <th align="center"><a href="/test_info/{{test.id}}">Тык</a></th>
-        {%else%}
-        <th align="center">Уже пройден</th>
-        {%endif%}
-        {%endif%}
-    <tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div id="content">
+    <table align="center">
+        <tbody>
+        <tr>
+            <th bgcolor="#cccccc" align="center">Название</th>
+            <th bgcolor="#cccccc" align="center">Категория</th>
+            <th bgcolor="#cccccc" align="center">Сложность</th>
+            {% if current_user.is_authenticated %}
+            <th bgcolor="#cccccc" align="center">Перейти к тесту</th>
+            {%endif%}
+        </tr>
+        {% for test in data %}
+        {%if test.official%}
+        <tr bgcolor="#e0ffe0">
+            {%else%}
+        <tr>
+            {%endif%}
+            <th align="center">{{test.name}}</th>
+            <th align="center">{{test.category}}</th>
+            <th align="center">{{test.difficulty}}</th>
+            {% if current_user.is_authenticated %}
+            {% if test.id not in completed %}
+            <th align="center"><a href="/test_info/{{test.id}}">Тык</a></th>
+            {%else%}
+            <th align="center">Уже пройден</th>
+            {%endif%}
+            {%endif%}
+        <tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
