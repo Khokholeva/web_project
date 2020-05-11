@@ -18,13 +18,15 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+# Форма для входа в систему зарегистрировавшегося ранее пользователя
 class LoginForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
-    submit = SubmitField('Войти')
+    submit = SubmitField('Войти')  ##
 
 
+# Форма для регистрации нового пользователя
 class RegisterForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -35,6 +37,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
+# Форма для просмотра информации об аккаунте
 class AccountForm(FlaskForm):
     name = StringField('Имя пользователя', validators=[DataRequired()])
     about = TextAreaField("Немного о себе")
@@ -42,6 +45,7 @@ class AccountForm(FlaskForm):
     submit = SubmitField('Изменить аккаунт')
 
 
+# Форма для изменения пароля пользователя
 class PasswordForm(FlaskForm):
     password_old = PasswordField('Введите старый пароль', validators=[DataRequired()])
     password = PasswordField('Введите новый пароль', validators=[DataRequired()])
@@ -49,6 +53,7 @@ class PasswordForm(FlaskForm):
     submit = SubmitField('Изменить пароль')
 
 
+# Инициализация бд, запуск приложения
 def main():
     path = os.getcwd().replace('\\', '/') + '/db'
     if not os.path.exists(path):
@@ -64,6 +69,7 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
+# Главная страница, содержит список тестов
 @app.route('/')
 @app.route('/index')
 def index():
@@ -80,6 +86,7 @@ def index():
     return render_template('main.html', title='Just Tests', data=tests, completed=completed)
 
 
+# Вход в систему
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -94,6 +101,7 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
+# Регистрация в системе
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = RegisterForm()
@@ -131,6 +139,7 @@ def reqister():
     return render_template('register.html', title='Регистрация', form=form)
 
 
+# Информация о своем аккаунте, возможность изменить данные, создать новый тест
 @app.route('/my_account', methods=['GET', 'POST'])
 @login_required
 def my_account():
@@ -159,6 +168,7 @@ def my_account():
                            path=profile_pic_name, xp=user.xp)
 
 
+# Изменение пароля
 @app.route('/pass_change', methods=['GET', 'POST'])
 @login_required
 def pass_change():
@@ -180,6 +190,7 @@ def pass_change():
     return render_template('pass.html', title='Изменение пароля', form=form)
 
 
+# Выход
 @app.route('/logout')
 @login_required
 def logout():
@@ -187,6 +198,7 @@ def logout():
     return redirect("/")
 
 
+# Удаление аккаунта
 @app.route('/user_delete')
 @login_required
 def user_delete():
@@ -198,6 +210,7 @@ def user_delete():
     return redirect("/")
 
 
+# Основная информация о тесте, ссылка для прохождения теста
 @app.route('/test_info/<id>')
 @login_required
 def test_page(id):
@@ -207,6 +220,7 @@ def test_page(id):
     return render_template('test_page.html', test=test, title='О тесте', completed=completed)
 
 
+# Прохождение теста / результат теста
 @app.route('/complete_test/<id>', methods=['POST', 'GET'])
 @login_required
 def complete_test(id):
@@ -234,6 +248,7 @@ def complete_test(id):
         return render_template('result.html', result=result, max_res=max_res, experience=experience)
 
 
+# Просмотр информации о другом пользователе, доступ к его тестам
 @app.route('/other_account/<id>')
 @login_required
 def other_account(id):

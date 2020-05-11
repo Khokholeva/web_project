@@ -6,6 +6,8 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+# Класс пользователя, содержит информацию о пользователе, список его тестов и тестов, пройденных им,
+# функции для создания пароля
 class User(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 

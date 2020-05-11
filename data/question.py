@@ -1,8 +1,8 @@
-import datetime
 import sqlalchemy
 from .db_session import SqlAlchemyBase
 
 
+# Класс вопроса, содержит текст, варианты ответов, правильный ответ
 class Question(SqlAlchemyBase):
     __tablename__ = 'questions'
 

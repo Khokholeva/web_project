@@ -4,6 +4,7 @@ from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
 
 
+# Класс теста, содержит инфорацию о тесте, список id вопросов теста
 class Test(SqlAlchemyBase):
     __tablename__ = 'tests'
 
