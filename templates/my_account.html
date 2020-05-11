@@ -17,19 +17,19 @@
         {{ form.name.label }}<br>
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
-            <p class="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
     </p>
     <p>
         {{ form.about.label }}<br>
         {{ form.about(class="form-control") }}<br>
         {% for error in form.about.errors %}
-            <p class="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
     </p>
     <div>
         <img src="{{ path }}" class="img-fluid" width="200" alt="">
@@ -38,10 +38,10 @@
         {{ form.profile_pic.label }}<br>
         {{ form.profile_pic }}
         {% for error in form.about.errors %}
-            <p class="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
     </p>
     <p>
         Опыт<br>
@@ -61,29 +61,33 @@
         Мои тесты
     </p>
     <p>
-        <a href="/edit_test/0">Новый тест</a>
+        <a href="/edit_test/0" class="btn btn-info">Новый тест</a>
     </p>
+    {%if data%}
     <table align="center">
-  <tbody><tr>
-      <th bgcolor="#cccccc" align="center">Название</th>
-      <th bgcolor="#cccccc" align="center">Категория</th>
-      <th bgcolor="#cccccc" align="center">Сложность</th>
-      <th bgcolor="#cccccc" align="center">Редактировать тест</th>
-      <th bgcolor="#cccccc" align="center">Удалить тест</th>
-    </tr>
-    {% for test in data %}
-    {%if test.official%}
-        <tr bgcolor="#e0ffe0">
-    {%else%}
+        <tbody>
         <tr>
+            <th bgcolor="#cccccc" align="center">Название</th>
+            <th bgcolor="#cccccc" align="center">Категория</th>
+            <th bgcolor="#cccccc" align="center">Сложность</th>
+            <th bgcolor="#cccccc" align="center">Редактировать тест</th>
+            <th bgcolor="#cccccc" align="center">Удалить тест</th>
+        </tr>
+        {% for test in data %}
+        {%if test.official%}
+        <tr bgcolor="#e0ffe0">
+            {%else%}
+        <tr>
+            {%endif%}
+            <th align="center">{{test.name}}</th>
+            <th align="center">{{test.category}}</th>
+            <th align="center">{{test.difficulty}}</th>
+            <th align="center"><a href="/edit_test/{{test.id}}">Тык</a></th>
+            <th align="center"><a href="/delete_test/{{test.id}}">Тык</a></th>
+        <tr>
+            {% endfor %}
+        </tbody>
+    </table>
     {%endif%}
-      <th  align="center">{{test.name}}</th>
-      <th  align="center">{{test.category}}</th>
-      <th align="center">{{test.difficulty}}</th>
-      <th  align="center" ><a href="/edit_test/{{test.id}}">Тык</a></th>
-      <th  align="center" ><a href="/delete_test/{{test.id}}">Тык</a></th>
-  <tr>
-  {% endfor %}
-</tbody></table>
 </form>
 {% endblock %}

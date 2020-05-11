@@ -189,7 +189,11 @@ def my_account():
     user = current_user
     user = session.query(User).filter(User.email == user.email).first()
     profile_pic_name = user.profile_pic
-    data = [session.query(Test).filter(Test.id == int(id)).first() for id in user.users_tests.split('')]
+    data = [session.query(Test).filter(Test.id == int(id)).first() for id in user.user_tests.split('')]
+    if 0 in data:
+        data.remove(0)
+    if None in data:
+        data.remove(None)
     if request.method == "GET":
         form.name.data = user.name
         form.about.data = user.about
@@ -305,7 +309,7 @@ def other_account(id):
 @login_required
 def edit_test(id):
     session = db_session.create_session()
-    if id == 0:
+    if int(id) == 0:
         form = TestForm()
         if form.validate_on_submit():
             test = Test()
