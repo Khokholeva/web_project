@@ -53,6 +53,15 @@ class PasswordForm(FlaskForm):
     submit = SubmitField('Изменить пароль')
 
 
+# Форма для создания/редактирования теста
+class TestForm(FlaskForm):
+    name = StringField('Название')
+    about = TextAreaField('Описание')
+    category = StringField('Категория')
+    attachment = FileField('Прикрепить файл')
+    submit = SubmitField('Сохранить')
+
+
 # Инициализация бд, запуск приложения
 def main():
     path = os.getcwd().replace('\\', '/') + '/db'
@@ -205,9 +214,12 @@ def user_delete():
     session = db_session.create_session()
     user = current_user
     user = session.query(User).filter(User.email == user.email).first()
-    session.delete(user)
-    session.commit()
-    return redirect("/")
+    if user:
+        session.delete(user)
+        session.commit()
+        return redirect("/")
+    else:
+        return "User not found"
 
 
 # Основная информация о тесте, ссылка для прохождения теста
@@ -215,7 +227,7 @@ def user_delete():
 @login_required
 def test_page(id):
     session = db_session.create_session()
-    test = session.query(Test).filter(Test.id == id).first()
+    test = session.query(Test).filter(Test.id == int(id)).first()
     completed = list(map(int, current_user.completed_tests.split('')))
     return render_template('test_page.html', test=test, title='О тесте', completed=completed)
 
@@ -225,7 +237,7 @@ def test_page(id):
 @login_required
 def complete_test(id):
     session = db_session.create_session()
-    test = session.query(Test).filter(Test.id == id).first()
+    test = session.query(Test).filter(Test.id == int(id)).first()
     ques_ids = list(map(int, test.questions.split('')))
     all_questions = [session.query(Question).filter(Question.id == qu_id).first() for qu_id in ques_ids]
     if request.method == 'GET':
@@ -245,7 +257,7 @@ def complete_test(id):
             experience *= 1.2
         user.xp += experience
         session.commit()
-        return render_template('result.html', result=result, max_res=max_res, experience=experience)
+        return render_template('result.html', result=result, max_res=max_res, experience=experience, title='Результат')
 
 
 # Просмотр информации о другом пользователе, доступ к его тестам
@@ -253,9 +265,82 @@ def complete_test(id):
 @login_required
 def other_account(id):
     session = db_session.create_session()
-    user = session.query(User).filter(User.id == id).first()
-    dont_show = list(map(int, current_user.completed_tests.split('')))
-    return render_template('other_account', user=user, completed=dont_show)
+    user = session.query(User).filter(User.id == int(id)).first()
+    if user:
+        dont_show = list(map(int, current_user.completed_tests.split('')))
+        return render_template('other_account', user=user, completed=dont_show, title='Аккаунт ' + user.name)
+    else:
+        return 'User not found'
+
+
+# Создание нового теста/редактирование старого
+@app.route('/edit_test/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_test(id):
+    session = db_session.create_session()
+    if id == 0:
+        form = TestForm()
+        if form.validate_on_submit():
+            test = Test()
+            user = session.query(User).filter(User == current_user).first()
+            if form.attachment.data:
+                pic_name = 'static/img/' + form.name.data + '_' + form.attachment.data.filename
+                form.profile_pic.data.save(pic_name)
+                test.attachment = pic_name
+            test.name = form.name.data
+            test.about = form.about.data
+            test.category = form.category.data
+            user.users_tests += '' + str(test.id)
+            test.user = user
+            session.add(test)
+            session.commit()
+            return render_template('edit_test.html', title='Редактирование теста', form=form,
+                                   message='Изменения сохранены')
+        return render_template('edit_test.html', form=form, title='Создание теста')
+    else:
+        test = session.query(Test).filter(Test.id == int(id)).first()
+        if test:
+            if test.user == current_user:
+                form = TestForm()
+                if request.method == 'GET':
+                    form.name.data = test.name
+                    form.category.data = test.category
+                    form.about.data = test.about
+                    form.attachment.data = test.attachment
+                if form.validate_on_submit():
+                    if form.attachment.data:
+                        pic_name = 'static/img/' + form.name.data + '_' + form.attachment.data.filename
+                        form.profile_pic.data.save(pic_name)
+                        test.attachment = pic_name
+                    test.name = form.name.data
+                    test.about = form.about.data
+                    test.category = form.category.data
+                    session.commit()
+                    return render_template('edit_test.html', title='Редактирование теста', form=form,
+                                           message='Изменения сохранены')
+                return render_template('edit_test.html', title='Редактирование теста', form=form)
+
+            else:
+                return 'AccessError'
+        else:
+            return "Test not found"
+
+
+# Удаление теста
+@app.route('/delete_test/<id>')
+@login_required
+def delete_test(id):
+    session = db_session.create_session()
+    test = session.query(Test).filter(Test.id == int(id)).first()
+    if test:
+        if test.user == current_user:
+            session.delete(test)
+            session.commit()
+            return redirect("/my_account")
+        else:
+            return 'AccessError'
+    else:
+        return "Test not found"
 
 
 if __name__ == '__main__':

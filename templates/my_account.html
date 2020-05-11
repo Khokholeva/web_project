@@ -57,5 +57,33 @@
         <a href="/" class="btn btn-success">Выйти</a>
     </p>
     <h4>{{message}}</h4>
+    <p align="center">
+        Мои тесты
+    </p>
+    <p>
+        <a href="/edit_test/0">Новый тест</a>
+    </p>
+    <table align="center">
+  <tbody><tr>
+      <th bgcolor="#cccccc" align="center">Название</th>
+      <th bgcolor="#cccccc" align="center">Категория</th>
+      <th bgcolor="#cccccc" align="center">Сложность</th>
+      <th bgcolor="#cccccc" align="center">Редактировать тест</th>
+      <th bgcolor="#cccccc" align="center">Удалить тест</th>
+    </tr>
+    {% for test in data %}
+    {%if test.official%}
+        <tr bgcolor="#e0ffe0">
+    {%else%}
+        <tr>
+    {%endif%}
+      <th  align="center">{{test.name}}</th>
+      <th  align="center">{{test.category}}</th>
+      <th align="center">{{test.difficulty}}</th>
+      <th  align="center" ><a href="/edit_test/{{test.id}}">Тык</a></th>
+      <th  align="center" ><a href="/delete_test/{{test.id}}">Тык</a></th>
+  <tr>
+  {% endfor %}
+</tbody></table>
 </form>
 {% endblock %}

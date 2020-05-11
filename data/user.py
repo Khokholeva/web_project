@@ -21,8 +21,9 @@ class User(SqlAlchemyBase, UserMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
-    users_tests = orm.relation("Test", back_populates='user')
+    tests = orm.relation("Test", back_populates='user')
     completed_tests = sqlalchemy.Column(sqlalchemy.String, default='0')
+    user_tests = sqlalchemy.Column(sqlalchemy.String, default='0')
     moderator = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     xp = sqlalchemy.Column(sqlalchemy.Integer, default=0)
 
