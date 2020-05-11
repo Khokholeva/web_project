@@ -157,6 +157,7 @@ def my_account():
     user = current_user
     user = session.query(User).filter(User.email == user.email).first()
     profile_pic_name = user.profile_pic
+    data = [session.query(Test).filter(Test.id == int(id)).first() for id in user.users_tests.split('')]
     if request.method == "GET":
         form.name.data = user.name
         form.about.data = user.about
@@ -172,9 +173,9 @@ def my_account():
         user.created_date = datetime.datetime.now()
         session.commit()
         return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
-                               path=profile_pic_name, message='Аккаунт изменён', xp=user.xp)
+                               path=profile_pic_name, message='Аккаунт изменён', xp=user.xp, data=data)
     return render_template('my_account.html', title='Мой аккаунт', form=form, email=user.email,
-                           path=profile_pic_name, xp=user.xp)
+                           path=profile_pic_name, xp=user.xp, data=data)
 
 
 # Изменение пароля
