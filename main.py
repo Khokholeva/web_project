@@ -88,7 +88,7 @@ def index():
     completed = []
     difficulies = ['any', 0, 1, 2, 3, 4, 5]
     categories = ['any'] + [el.name for el in session.query(Category)]
-    authors = ['any'] + [el.name for el in session.query(User)]
+    authors = ['any', 'Без автора'] + [el.name for el in session.query(User) if el != current_user]
     official = ['any', "Только официальные", 'Только не официальные']
     moder_difficulty = [1, 2, 3, 4, 5]
     if request.method == 'POST':
@@ -118,6 +118,7 @@ def index():
                 if request.form['author'] == 'Без автора':
                     tests = [test for test in tests if not test.user]
                 elif request.form['author'] != 'any':
+                    tests = [test for test in tests if test.user]
                     tests = [test for test in tests if test.user.name == request.form['author']]
 
                 if request.form['official'] == 'Только официальные':
