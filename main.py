@@ -142,7 +142,6 @@ def index():
                            option_mod=moder_difficulty)
 
 
-
 # Вход в систему
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -319,7 +318,11 @@ def complete_test(id):
 @login_required
 def other_account(id):
     session = db_session.create_session()
-    user = session.query(User).filter(User.id == int(id)).first()
+    try:
+        int(id)
+        user = session.query(User).filter(User.id == int(id)).first()
+    except Exception:
+        user = session.query(User).filter(User.name == id).first()
     if user:
         data = session.query(Test).filter(Test.user == user)
         if request.method == 'POST':
@@ -436,6 +439,17 @@ def delete_test(id):
             return 'AccessError'
     else:
         return "Test not found"
+
+
+@app.route('/user_official/<id>')
+@login_required
+def user_official(id):
+    if current_user.moderator:
+        session = db_session.create_session()
+        user = session.query(User).filter(User.id == int(id)).first()
+        user.moderator = True
+        session.commit()
+    return redirect(request.args['redir'])
 
 
 if __name__ == '__main__':

@@ -76,7 +76,14 @@
     <br>
     <p>
         <a href="/" class="btn btn-success">На главную страницу</a>
+        {%if current_user.moderator%}
+        {%if not user.moderator%}
         <a href="/user_delete/{{user.id}}" class="btn btn-danger">Удалить аккаунт</a>
+
     </p>
+    <a href="/user_official/{{user.id}}?redir=/other_account/{{user.id}}" class="btn btn-info">Сделать пользователя
+        модератором</a>
+    {%endif%}
+    {%endif%}
 </form>
 {% endblock %}

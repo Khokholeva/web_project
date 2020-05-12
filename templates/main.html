@@ -6,6 +6,7 @@
 <div id="sidebar">
     {% if current_user.is_authenticated %}
     <a class="btn btn-secondary" href="/my_account">Мой аккаунт</a>
+    <br>
     <form method="post">
         <p>
             Сортировка по сложности
@@ -45,6 +46,14 @@
         </p>
         <button type="submit" class="btn btn-primary">Отсортировать</button>
     </form>
+    {%if current_user.moderator%}
+    <br>
+    <p> Пользователи <br>
+        {%for user in option_3[2:]%}
+        <a href="/other_account/{{user}}">{{user}}</a>
+        {%endfor%}
+    </p>
+    {%endif%}
 </div>
 {% endif %}
 <div>
