@@ -2,46 +2,38 @@
 
 {% block content %}
 
+<h1 style="text-align: center">Тест {{ test_id }}</h1>
 {% if 'Редактирование' in title %}
-<h1 style="text-align: center">Редактирование теста</h1>
+<h1 style="text-align: center">Редактирование вопроса</h1>
 {% elif 'Создание' in title %}
-<h1 style="text-align: center">Создание теста</h1>
+<h1 style="text-align: center">Создание вопроса</h1>
 {% endif %}
 
 <form class="login_form" action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
     <p>
-        {{ form.name.label }}<br>
-        {{ form.name(class="form-control") }}<br>
-        {% for error in form.name.errors %}
+        {{ form.text_q.label }}<br>
+        {{ form.text_q(class="form-control") }}<br>
+        {% for error in form.text_q.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
     {% endfor %}
     </p>
     <p>
-        {{ form.about.label }}<br>
-        {{ form.about(class="form-control") }}<br>
-        {% for error in form.about.errors %}
+        {{ form.answers.label }}<br>
+        {{ form.answers(class="form-control") }}<br>
+        {% for error in form.answers.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
     {% endfor %}
     </p>
     <p>
-        {{ form.category.label }}<br>
-        {{ form.category(class="form-control") }}<br>
-        {% for error in form.category.errors %}
-    <p class="alert alert-danger" role="alert">
-        {{ error }}
-    </p>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.difficulty.label }}
-        {{ form.difficulty(class="form-control") }}
-        {% for error in form.difficulty.errors %}
+        {{ form.correct.label }}<br>
+        {{ form.correct(class="form-control") }}<br>
+        {% for error in form.correct.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
@@ -62,17 +54,19 @@
     <br>
     <p style="text-align: center">
         {{ form.submit(type="submit", class="btn btn-warning") }}
-        <a href="/my_account" class="btn btn-success">Вернуться</a>
+        <a href="/edit_test/{{ test_id }}" class="btn btn-success">Вернуться</a>
     </p>
     <h4>{{message}}</h4><br>
-    <div style="text-align: center">
     {% if 'Редактирование' in title %}
-        <a href="/edit_question/{{ test_id }}/0" class="btn btn-info">Новый вопрос</a>
+        <div style="text-align: center">
+        {% if ques_prev > 0 %}
+            <a href="/edit_question/{{ test_id }}/{{ ques_prev }}" class="btn btn-info">Предыдущий вопрос</a>
+        {% endif %}
+        {% if ques_next > 0 %}
+            <a href="/edit_question/{{ test_id }}/{{ ques_next }}" class="btn btn-info">Следующий вопрос</a>
+        {% endif %}
+        </div>
     {% endif %}
-    {% if questions %}
-        <a href="/edit_question/{{ test_id }}/{{ questions[0] }}" class="btn btn-info">Ред/удаление вопросов</a>
-    {% endif %}
-    </div>
 </form>
 
 {% endblock %}

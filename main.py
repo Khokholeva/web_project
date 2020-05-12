@@ -65,6 +65,15 @@ class TestForm(FlaskForm):
     submit = SubmitField('Сохранить')
 
 
+# форма для создания/редактирования вопросов
+class QuestionForm(FlaskForm):
+    text_q = TextAreaField('Вопрос')
+    attachment = FileField('Прикрепить файл')
+    answers = StringField('Ответы')
+    correct = StringField('Правильный ответ')
+    submit = SubmitField('Сохранить')
+
+
 # Инициализация бд, запуск приложения
 def main():
     path = os.getcwd().replace('\\', '/') + '/db'
@@ -378,11 +387,13 @@ def edit_test(id):
             session.commit()
             return render_template('edit_test.html', title='Создание теста', form=form,
                                    path=pic_name, message='Изменения сохранены')
-        return render_template('edit_test.html', form=form, path=pic_name, title='Создание теста')
+        return render_template('edit_test.html', form=form, path=pic_name,
+                               title='Создание теста')
     else:
         test = session.query(Test).filter(Test.id == int(id)).first()
         if test:
             if test.user == current_user:
+                questions = test.questions.split(' ') if test.questions else []
                 pic_name = test.attachment[7:] if test.attachment else 'img/'
                 if request.method == 'GET':
                     form.name.data = test.name
@@ -390,7 +401,6 @@ def edit_test(id):
                     form.about.data = test.about
                     form.difficulty.data = str(test.difficulty)
                 if form.validate_on_submit():
-                    print('g')
                     if form.attachment.data:
                         pic_name = 'static/img/' + form.name.data + '_' + form.attachment.data.filename
                         form.attachment.data.save(pic_name)
@@ -410,9 +420,10 @@ def edit_test(id):
                         session.add(cat)
                     session.commit()
                     return render_template('edit_test.html', title='Редактирование теста', form=form,
-                                           path=pic_name, message='Изменения сохранены')
+                                           path=pic_name, questions=questions, test_id=test.id,
+                                           message='Изменения сохранены')
                 return render_template('edit_test.html', title='Редактирование теста', form=form,
-                                       path=pic_name)
+                                       questions=questions, test_id=test.id, path=pic_name)
 
             else:
                 return 'AccessError'
@@ -439,6 +450,74 @@ def delete_test(id):
             return 'AccessError'
     else:
         return "Test not found"
+
+# Создание нового вопроса/редактирование старого
+@app.route('/edit_question/<test_id>/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_question(test_id, id):
+    session = db_session.create_session()
+    test = session.query(Test).filter(Test.id == int(test_id)).first()
+    questions = test.questions.split(' ') if test.questions else []
+    if int(id) == 0:
+        form = QuestionForm()
+        pic_name = 'img/'
+        if form.validate_on_submit():
+            question = Question()
+            user = current_user
+            user = session.query(User).filter(User.email == user.email).first()
+            if form.attachment.data:
+                pic_name = 'static/img/' + 'test' + test_id + 'q_' + form.attachment.data.filename
+                form.attachment.data.save(pic_name)
+                question.attachment = pic_name
+                pic_name = pic_name[7:]
+            question.text = form.text_q.data
+            question.answers = form.answers.data
+            question.correct = form.correct.data
+            session.add(question)
+            session.commit()
+            if test.questions is None:
+                test.questions = str(question.id)
+            else:
+                test.questions += ' ' + str(question.id)
+            session.commit()
+            return render_template('edit_question.html', title='Создание вопроса', form=form,
+                                   test_id=test_id, path=pic_name, message='Изменения сохранены')
+        return render_template('edit_question.html', form=form, test_id=test_id, path=pic_name,
+                               title='Создание вопроса')
+    else:
+        question = session.query(Question).filter(Question.id == int(id)).first()
+        if question:
+            ques_cur = questions.index(id)
+            ques_prev = 0
+            ques_next = 0
+            if ques_cur > 0:
+                ques_prev = int(questions[ques_cur - 1])
+            if ques_cur < len(questions) - 1:
+                ques_next = int(questions[ques_cur + 1])
+            pic_name = question.attachment[7:] if question.attachment else 'img/'
+            form = QuestionForm()
+            if request.method == 'GET':
+                form.text_q.data = question.text
+                form.answers.data = question.answers
+                form.correct.data = question.correct
+            if form.validate_on_submit():
+                if form.attachment.data:
+                    pic_name = 'static/img/' + 'test' + test_id + 'q_' + form.attachment.data.filename
+                    form.attachment.data.save(pic_name)
+                    question.attachment = pic_name
+                    pic_name = pic_name[7:]
+                question.text = form.text_q.data
+                question.answers = form.answers.data
+                question.correct = form.correct.data
+                session.commit()
+                return render_template('edit_question.html', title='Редактирование вопроса', form=form,
+                                       test_id=test_id, ques_cur=id, ques_prev=ques_prev,
+                                       ques_next=ques_next, path=pic_name, message='Изменения сохранены')
+            return render_template('edit_question.html', title='Редактирование вопроса', form=form,
+                                   test_id=test_id, ques_cur=id, ques_prev=ques_prev,
+                                   ques_next=ques_next, path=pic_name)
+        else:
+            return "Question not found"
 
 
 @app.route('/user_official/<id>')
