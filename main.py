@@ -141,6 +141,7 @@ def index():
                            option_mod=moder_difficulty)
 
 
+
 # Вход в систему
 @app.route('/login', methods=['GET', 'POST'])
 def login():

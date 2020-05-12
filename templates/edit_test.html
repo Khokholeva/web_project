@@ -32,7 +32,7 @@
     <p>
         {{ form.category.label }}<br>
         {{ form.category(class="form-control") }}<br>
-    {% for error in form.category.errors %}
+        {% for error in form.category.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
@@ -47,7 +47,6 @@
     </p>
     {% endfor %}
     </p>
-
     <div>
         <img src="{{url_for('static', filename=path)}}" class="img-fluid" width="200" alt="">
     </div>
