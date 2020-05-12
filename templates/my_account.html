@@ -32,12 +32,12 @@
     {% endfor %}
     </p>
     <div>
-        <img src="{{ path }}" class="img-fluid" width="200" alt="">
+        <img src="{{url_for('static', filename=path)}}" class="img-fluid" width="200" alt="">
     </div>
     <p>
         {{ form.profile_pic.label }}<br>
         {{ form.profile_pic }}
-        {% for error in form.about.errors %}
+        {% for error in form.profile_pic.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
@@ -50,9 +50,9 @@
         <strong> {{ xp }} </strong>
     </p>
     <br>
-    <p>
+    <p style="text-align: center">
         {{ form.submit(type="submit", class="btn btn-warning") }}
-        <a href="/user_delete" class="btn btn-danger">Удалить аккаунт</a>
+        <a href="/user_delete/{{current_user.id}}" class="btn btn-danger">Удалить аккаунт</a>
         <a href="/pass_change" class="btn btn-info">Изменить пароль</a>
         <a href="/" class="btn btn-success">Выйти</a>
     </p>
@@ -60,7 +60,7 @@
     <p align="center">
         Мои тесты
     </p>
-    <p>
+    <p align="center">
         <a href="/edit_test/0" class="btn btn-info">Новый тест</a>
     </p>
     {%if data%}
@@ -83,7 +83,7 @@
             <th align="center">{{test.category}}</th>
             <th align="center">{{test.difficulty}}</th>
             <th align="center"><a href="/edit_test/{{test.id}}">Тык</a></th>
-            <th align="center"><a href="/delete_test/{{test.id}}">Тык</a></th>
+            <th align="center"><a href="/delete_test/{{test.id}}?redir=/my_account">Тык</a></th>
         <tr>
             {% endfor %}
         </tbody>

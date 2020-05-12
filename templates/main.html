@@ -47,8 +47,8 @@
     </form>
 </div>
 {% endif %}
-<div id="content">
-    <table align="center">
+<div>
+    <table align="center" style="width: 600px">
         <tbody>
         <tr>
             <th bgcolor="#cccccc" align="center">Название</th>
@@ -56,6 +56,10 @@
             <th bgcolor="#cccccc" align="center">Сложность</th>
             {% if current_user.is_authenticated %}
             <th bgcolor="#cccccc" align="center">Перейти к тесту</th>
+            {%if current_user.moderator%}
+            <th bgcolor="#cccccc" align="center">Сделать официальным / изменить сложность</th>
+            <th bgcolor="#cccccc" align="center">Удалить</th>
+            {%endif%}
             {%endif%}
         </tr>
         {% for test in data %}
@@ -72,6 +76,19 @@
             <th align="center"><a href="/test_info/{{test.id}}">Тык</a></th>
             {%else%}
             <th align="center">Уже пройден</th>
+            {%endif%}
+            {%if current_user.moderator%}
+            <th align="center">
+                <form method="post">
+                    <select name="moderator">
+                        {% for opt in option_mod %}
+                        <option value="{{test.id}}_{{ opt }}">{{opt}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Сохранить</button>
+                </form>
+            </th>
+            <th align="center"><a href="/delete_test/{{test.id}}?redir=/">Удалить</a></th>
             {%endif%}
             {%endif%}
         <tr>
